@@ -11,3 +11,4 @@ Sagehen Data Exploration.webarchive
 __pycache__/sagehen_peewee.cpython-36.pyc
 __pycache__/sagehen_pandas.cpython-36.pyc
 snippets.txt
+wind_rose.csv
