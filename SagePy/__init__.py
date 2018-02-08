@@ -4,46 +4,76 @@ import sqlite3
 
 DATABASE = sqlite3.connect("sagehen.db")
 
+plt_colors = {
+    'solar_rad': 'red',
+    'wind_ave': 'cornflowerblue',
+    'wind_dir': 'crimson',
+    'wind_max': 'tomato',
+    'temp_ave': 'gold',
+    'temp_max': 'orangered',
+    'temp_min': 'dodgerblue',
+    'soil_tave': 'lightseagreen',
+    'soil_tmax': 'darkcyan',
+    'soil_tmin': 'paleturquoise',
+    'rh_ave': 'slateblue',
+    'rh_max': 'indigo',
+    'rh_min': 'plum',
+    'dew_pt': 'orange',
+    'wet_bulb': 'darkcyan',
+    'pressure': 'blueviolet',
+    'snow': 'deepskyblue',
+    'precip': 'royalblue',
+}
 
-def _config_df(dataframe_obj):
+
+def col_colors(pandas_obj):
+    if type(pandas_obj) == pd.core.frame.DataFrame:
+        colors = [plt_colors[col] for col in pandas_obj.columns]
+    elif type(pandas_obj) == pd.core.series.Series:
+        colors = [plt_colors[pandas_obj.name]]
+    return colors
+
+
+def _config_df(pandas_obj):
     """
-    Configures a Pandas DataFrame to a set of specifications
-    
+    Configures a Pandas DataFrame or Series to a set of specifications
+
     Parameters
     ----------
-    dataframe_obj : pandas.DataFrame
+    pandas_obj : pandas.DataFrame or pandas.Series
         Pandas Dataframe that will be configured with the following
         specifications:
         - Remove sql id
         - Change values in date_time column to actual python.datetime
             objects.
-        - Sets date_time column to Index Column in pandas.DataFrame
+        - Sets date_time column to Index Column in pandas.DataFrame or
+            pandas.Series
         - Assures all values in pandas.DataFrame are numeric, and not
-            type str
+            type string
 
     Returns
-    ------- 
-    dataframe_obj : pandas.DataFrame
+    -------
+    pandas_obj : pandas.DataFrame or pandas.Series
     """
-    dataframe_obj.drop('id', axis=1, inplace=True)
-    dataframe_obj['date_time'] = pd.to_datetime(
-        dataframe_obj['date_time'],
+    pandas_obj.drop('id', axis=1, inplace=True)
+    pandas_obj['date_time'] = pd.to_datetime(
+        pandas_obj['date_time'],
         errors="coerce",
     )
-    dataframe_obj.set_index(['date_time'], inplace=True)
-    dataframe_obj = dataframe_obj.apply(pd.to_numeric, args=('coerce',))
-    return dataframe_obj
+    pandas_obj.set_index(['date_time'], inplace=True)
+    pandas_obj = pandas_obj.apply(pd.to_numeric, args=('coerce',))
+    return pandas_obj
 
 
 def _column_adder(cols_wanted):
-    """Adds the list of columns 
+    """Adds the list of columns
     into a string object, seperated by commas
 
     Parameters
     ----------
     cols_wanted : list
         List of column strings to be added to sql query
-    
+
     Returns
     -------
     select_cols : string
@@ -59,7 +89,7 @@ def _column_adder(cols_wanted):
 
 
 def year_search(start_yr, end_yr, cols_wanted=[]):
-    """Returns a Pandas DataFrame with rows matching the specified
+    """Returns a Pandas DataFrame or Series with rows matching the specified
     year range
     """
     select_cols = _column_adder(cols_wanted)
@@ -72,7 +102,7 @@ def year_search(start_yr, end_yr, cols_wanted=[]):
 
 
 def date_search(start_date, end_date, cols_wanted=[]):
-    """Returns a Pandas DataFrame with rows matching the specified date
+    """Returns a Pandas DataFrame or Series with rows matching the specified date
     range
     """
     select_cols = _column_adder(cols_wanted)
@@ -86,8 +116,8 @@ def date_search(start_date, end_date, cols_wanted=[]):
 
 def value_search(col, start_val, end_val, cols_wanted=[]):
     """
-    Returns a Pandas DataFrame with the rows matching the specified value
-    range within the specified column
+    Returns a Pandas DataFrame or Series with the rows matching the specified
+    value range within the specified column
     """
     if cols_wanted:
         cols_wanted.append(col)
