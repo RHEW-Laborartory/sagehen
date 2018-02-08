@@ -14,3 +14,7 @@ snippets.txt
 wind_rose.csv
 sage_py/__pycache__/__init__.cpython-36.pyc
 sage_py/__pycache__/iplotBuilder.cpython-36.pyc
+SagePy/__pycache__/iplotBuilder.cpython-36.pyc
+SagePy/__pycache__/__init__.cpython-36.pyc
+sage_py/sageDbBuilder.py
+SagePy/__pycache__/sage_pd.cpython-36.pyc
