@@ -12,3 +12,5 @@ __pycache__/sagehen_peewee.cpython-36.pyc
 __pycache__/sagehen_pandas.cpython-36.pyc
 snippets.txt
 wind_rose.csv
+sage_py/__pycache__/__init__.cpython-36.pyc
+sage_py/__pycache__/iplotBuilder.cpython-36.pyc
