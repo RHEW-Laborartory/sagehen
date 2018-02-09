@@ -1,37 +1,171 @@
 import pandas as pd
 import sqlite3
 
+from SagePy.iplotBuilder import iplot_labeler
+
 
 DATABASE = sqlite3.connect("sagehen.db")
 
-plt_colors = {
-    'solar_rad': 'red',
-    'wind_ave': 'cornflowerblue',
-    'wind_dir': 'crimson',
-    'wind_max': 'tomato',
-    'temp_ave': 'gold',
-    'temp_max': 'orangered',
-    'temp_min': 'dodgerblue',
-    'soil_tave': 'lightseagreen',
-    'soil_tmax': 'darkcyan',
-    'soil_tmin': 'paleturquoise',
-    'rh_ave': 'slateblue',
-    'rh_max': 'indigo',
-    'rh_min': 'plum',
-    'dew_pt': 'orange',
-    'wet_bulb': 'darkcyan',
-    'pressure': 'blueviolet',
-    'snow': 'deepskyblue',
-    'precip': 'royalblue',
+column_dict = {
+    'date_time':
+        {
+         'label': 'Year',
+         'color': 'green',
+        },
+    'solar_rad':
+        {
+         'label': 'K W-hr/m^2',
+         'color': 'red',
+        },
+    'wind_ave':
+        {
+         'label': 'Velocity (m/s)',
+         'color': 'cornflowerblue',
+        },
+    'wind_dir':
+        {
+         'label': 'Degrees',
+         'color': 'crimson',
+        },
+    'wind_max':
+        {
+         'label': 'Velocity (m/s)',
+         'color': 'tomato',
+        },
+    'temp_ave':
+        {
+         'label': 'Temperature (ºC)',
+         'color': 'gold',
+        },
+    'temp_max':
+        {
+         'label': 'Temperature (ºC)',
+         'color': 'orangered',
+        },
+    'temp_min':
+        {
+         'label': 'Temperature (ºC)',
+         'color': 'dodgerblue',
+        },
+    'soil_tave':
+        {
+         'label': 'Temperature (ºC)',
+         'color': 'lightseagreen',
+        },
+    'soil_tmax':
+        {
+         'label': 'Temperature (ºC)',
+         'color': 'darkcyan',
+        },
+    'soil_tmin':
+        {
+         'label': 'Temperature (ºC)',
+         'color': 'paleturquoise',
+        },
+    'rh_ave':
+        {
+         'label': 'RH (%)',
+         'color': 'slateblue',
+        },
+    'rh_max':
+        {
+         'label': 'RH (%)',
+         'color': 'indigo',
+        },
+    'rh_min':
+        {
+         'label': 'RH (%)',
+         'color': 'plum',
+        },
+    'dew_pt':
+        {
+         'label': 'Temperature (ºC)',
+         'color': 'orange',
+        },
+    'wet_bulb':
+        {
+         'label': 'Temperature (ºC)',
+         'color': 'darkcyan',
+        },
+    'pressure':
+        {
+         'label': 'Temperature (ºC)',
+         'color': 'blueviolet',
+        },
+    'snow':
+        {
+         'label': 'Millimeters',
+         'color': 'deepskyblue',
+        },
+    'precip':
+        {
+         'label': 'Millimeters',
+         'color': 'royalblue',
+        },
 }
 
 
 def col_colors(pandas_obj):
-    if type(pandas_obj) == pd.core.frame.DataFrame:
-        colors = [plt_colors[col] for col in pandas_obj.columns]
-    elif type(pandas_obj) == pd.core.series.Series:
-        colors = [plt_colors[pandas_obj.name]]
-    return colors
+    try:
+        if type(pandas_obj) == pd.core.frame.DataFrame:
+            colors = [column_dict[col]['color'] for col in pandas_obj.columns]
+        elif type(pandas_obj) == pd.core.series.Series:
+            colors = [column_dict[pandas_obj.name]['color']]
+        return colors
+    except KeyError:
+        return None
+
+
+def _plot_labels(pandas_obj, x_label, y_label):
+    if x_label is None:
+        try:
+            x_label = column_dict[pandas_obj.index.name]["label"]
+        except KeyError as missing_key:
+            x_label = str(missing_key).replace("'", "").title()
+    if y_label is None:
+        try:
+            if type(pandas_obj) == pd.core.series.Series:
+                y_label = column_dict[pandas_obj.name]['label']
+            elif type(pandas_obj) == pd.core.frame.DataFrame:
+                y_label = column_dict[pandas_obj.columns[0]]['label']
+        except KeyError as missing_key:
+            pass
+    return x_label, y_label
+
+
+def sage_iplot(pandas_obj, title=None, x_label=None, y_label=None, **kwds):
+    x, y = _plot_labels(pandas_obj, x_label, y_label)
+    layout = iplot_labeler(title, x, y)
+    color = col_colors(pandas_obj)
+    return pandas_obj.iplot(
+        color=color,
+        layout=layout,
+        **kwds,
+    )
+
+
+def sage_plot(
+        pandas_obj, figsize=(16, 8), 
+        x_label=None, y_label=None, **kwds):
+    x, y = _plot_labels(pandas_obj, x_label, y_label)
+    color = col_colors(pandas_obj)
+    if color is None or 'colormap' in kwds.keys():
+        ax = pandas_obj.plot(
+            figsize=figsize,
+            **kwds,
+        )
+    elif 'colormap' not in kwds.keys():
+        ax = pandas_obj.plot(
+            color=color,
+            figsize=figsize,
+            **kwds,
+        )
+    try:
+        ax.set_xlabel(x)
+        ax.set_ylabel(y)
+    except AttributeError:
+        pass
+    return ax
 
 
 def _config_df(pandas_obj):
@@ -124,7 +258,6 @@ def value_search(col, start_val, end_val, cols_wanted=[]):
     select_cols = _column_adder(cols_wanted)
 
     sql_query = "SELECT {3} FROM hourdata WHERE {0} >= {1} AND {0} <= {2} AND {0} IS NOT NULL;".format(col, start_val, end_val, select_cols)
-    print(sql_query)
     results = pd.read_sql(
         sql_query,
         con=DATABASE
