@@ -2,15 +2,15 @@
 def iplot_labeler(title=None, x=None, y=None):
     """
     Creates a dictionary object structured for Plotly's
-    iplot layout parameters
+    iplot layout parameter
 
     Parameters
     ----------
-    g_title : string (optional)
+    title : string (optional)
         provide a title for your plot
-    x_axis : string (optional)
+    x : string (optional)
         provide a title for your x-axis
-    y_axis : string (optional)
+    y : string (optional)
         provide a title for your y-axis
 
     Returns
