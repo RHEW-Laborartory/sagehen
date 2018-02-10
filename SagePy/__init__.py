@@ -106,6 +106,26 @@ column_dict = {
 
 
 def col_colors(pandas_obj):
+    """Returns a list of matplotlib color strings that have been
+    assigned to a particular column in the data set.
+
+    Parameters
+    ----------
+    pandas_obj : pd.DataFrame or pd.Series
+        Pandas Series or Dataframe containing columns that have been assigned
+        matplotlib colors.
+
+    Returns
+    -------
+    colors : list
+        Colors is a python list of matplotlib color strings.
+
+    Raises
+    ------
+    KeyError
+        If pd.DataFrame or pd.Series object contains a column that cannot be
+        found within the column_dict
+    """
     try:
         if type(pandas_obj) == pd.core.frame.DataFrame:
             colors = [column_dict[col]['color'] for col in pandas_obj.columns]
@@ -145,7 +165,7 @@ def sage_iplot(pandas_obj, title=None, x_label=None, y_label=None, **kwds):
 
 
 def sage_plot(
-        pandas_obj, figsize=(16, 8), 
+        pandas_obj, figsize=(16, 8),
         x_label=None, y_label=None, **kwds):
     x, y = _plot_labels(pandas_obj, x_label, y_label)
     color = col_colors(pandas_obj)
@@ -174,20 +194,21 @@ def _config_df(pandas_obj):
 
     Parameters
     ----------
-    pandas_obj : pandas.DataFrame or pandas.Series
-        Pandas Dataframe that will be configured with the following
+    pandas_obj : pd.DataFrame or pd.Series
+        Pandas Dataframe or Series that will be configured.
+
+    Returns
+    -------
+    pandas_obj : pd.DataFrame or pd.Series
+        Pandas Dataframe or Series with the following
         specifications:
         - Remove sql id
         - Change values in date_time column to actual python.datetime
             objects.
-        - Sets date_time column to Index Column in pandas.DataFrame or
-            pandas.Series
-        - Assures all values in pandas.DataFrame are numeric, and not
+        - Sets date_time column to Index Column in pd.DataFrame or
+            pd.Series
+        - Assures all values in pd.DataFrame are numeric, and not
             type string
-
-    Returns
-    -------
-    pandas_obj : pandas.DataFrame or pandas.Series
     """
     pandas_obj.drop('id', axis=1, inplace=True)
     pandas_obj['date_time'] = pd.to_datetime(
