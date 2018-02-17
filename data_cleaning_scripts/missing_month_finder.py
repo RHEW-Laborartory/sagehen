@@ -1,14 +1,14 @@
 import csv
 
 
-with open('../SAGEHEN_1APR1997-14DEC2017.csv') as CSVfile:
+with open('/Users/lawerencelee/rhew_lab/sagehen/KTRK_1948-01-01_2017-02-13.csv') as CSVfile:
     readCSV = csv.reader(CSVfile, delimiter=",")
     set_year = 1997
     set_month = 4
     missing_year = []
     missing_month = []
     for row in readCSV:
-        if row[0] != 'DATE':
+        if row[0] != 'date':
             year, month, day = row[0].split('-')
             year = int(year)
             month = int(month)
