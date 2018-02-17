@@ -1,35 +1,34 @@
 import csv
+import datetime
 
 
-missing_days = []
+filepath = input("Enter CSV filepath: ")
+start_date = input("Start Date (YYYY-MM-DD): ")
 
-with open('/Users/lawerencelee/rhew_lab/WU_Scraper/KTRK_1948-01-01_2017-02-13.csv') as CSVfile:
-    readCSV = csv.reader(CSVfile, delimiter=",")
-    set_day = 1
-    set_month = 1
-    set_year = 1948
-    for row in readCSV:
-        if row[0] != 'date':
-            year, month, day = row[0].split('-')
-            year = int(year)
-            month = int(month)
-            day = int(day)
-
-            if set_day != day or set_month != month or set_year != year:
-                if set_year+1 == year:
-                    set_year += 1
-                    set_month = 1
-                    set_day = 1
-                elif set_month+1 == month:
-                    set_month += 1
-                    set_day = 1
-                else:
-                    if set_day+1 != day:
-                        # print(year, month, "day Change: {} --> {}".format(set_day, day))
-                        missing_days.append([year, month, set_day+1, day]) 
-                        set_day = day
-                    else:
-                        set_day += 1
+missing_dates = []
 
 
-print(missing_days)
+def _add_one_day(date):
+    """Increases the date by one day using the datetime library"""
+    date = datetime.datetime.strptime(date, '%Y-%m-%d')
+    date = date + datetime.timedelta(days=1)
+    date = date.strftime('%Y-%m-%d')
+    return date
+
+
+def main():
+    with open(filepath) as CSVfile:
+        readCSV = csv.DictReader(CSVfile, delimiter=",")
+        current_date = start_date
+        for row in readCSV:
+            # print(row['date'], current_date)
+            # input()
+            if row['date'] != current_date:
+                missing_dates.append(row['date'])
+            current_date = _add_one_day(current_date)
+
+    print(missing_dates)
+
+
+if __name__ == "__main__":
+    main()
