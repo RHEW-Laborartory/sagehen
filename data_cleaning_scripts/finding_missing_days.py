@@ -3,13 +3,13 @@ import csv
 
 missing_days = []
 
-with open('../SAGEHEN_1APR1997-14DEC2017.csv') as CSVfile:
+with open('/Users/lawerencelee/rhew_lab/WU_Scraper/KTRK_1948-01-01_2017-02-13.csv') as CSVfile:
     readCSV = csv.reader(CSVfile, delimiter=",")
     set_day = 1
-    set_month = 4
-    set_year = 1997
+    set_month = 1
+    set_year = 1948
     for row in readCSV:
-        if row[0] != 'DATE':
+        if row[0] != 'date':
             year, month, day = row[0].split('-')
             year = int(year)
             month = int(month)
@@ -32,16 +32,4 @@ with open('../SAGEHEN_1APR1997-14DEC2017.csv') as CSVfile:
                         set_day += 1
 
 
-            # if set_day != day and set_day+1 != day:
-            #     if set_month+1 == month:
-            #         set_month += 1
-            #     elif set_year+1 == year:
-            #         set_year += 1
-            #     else:
-            #         print(year, month, "day Change: {} --> {}".format(set_day, day))
-            #         set_month = month
-            #         set_year = year
-            #     set_day = day
-            # elif set_day+1 == day:
-            #     set_day += 1
 print(missing_days)
